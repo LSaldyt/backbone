@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+import subprocess, time, sys, os
+
+updateInterval = 5
+waitInterval   = 1
+appDir         = 'app'
+
+def update(url):
+    if not os.path.isdir(appDir):
+        subprocess.call(['git', 'clone', url, appDir])
+    os.chdir(appDir)
+    try:
+        subprocess.call(['git', 'pull'])
+        subprocess.call(['bash', 'install.sh'])
+        return subprocess.Popen(['bash', 'run.sh'])
+    finally:
+        os.chdir('..')
+
+def main(args):
+    handle = None
+    last = time.time()
+    while True:
+        current = time.time()
+        if current - last > updateInterval:
+            last = current
+            if handle is not None:
+                print('Killing..')
+                handle.kill()
+            print('Updating..')
+            handle = update(args[0])
+        else:
+            print('Waiting..')
+            time.sleep(waitInterval)
+    return 0
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
