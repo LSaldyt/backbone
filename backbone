@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
 import subprocess, time, sys, os
+from contextlib import contextmanager
 
 updateInterval = 5
 waitInterval   = 1
 appDir         = 'app'
+
+@contextmanager
+def directory(name):
+    os.chdir(name)
+    try:
+        yield
+    finally:
+        os.chdir('..')
 
 def get_sha():
     output = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
@@ -12,25 +21,17 @@ def get_sha():
 def get_app_sha():
     if not os.path.isdir(appDir):
         return None
-    os.chdir(appDir)
-    try:
+    with directory(appDir):
         return get_sha()
-    finally:
-        os.chdir('..')
 
 def update(url):
     if not os.path.isdir(appDir):
         subprocess.call(['git', 'clone', url, appDir])
-    os.chdir(appDir)
-    try:
+    with directory(appDir):
         print('Pulling app')
         subprocess.call(['git', 'pull'])        # pull app's code
         subprocess.call(['bash', 'install.sh']) # run app
         return get_sha()
-    finally:
-        os.chdir('..')
-        print('Pulling backbone')
-        subprocess.call(['git', 'pull']) # pull backbone's code
 
 def main(args):
     url    = args[0]
@@ -46,6 +47,8 @@ def main(args):
             last = current
             print('Checking for updates..')
             new_app_sha = update(url)
+            print('Pulling backbone')
+            subprocess.call(['git', 'pull']) # pull backbone's code
             new_sha = get_sha()
             if app_sha != new_app_sha:
                 print('Updating app')
@@ -54,7 +57,8 @@ def main(args):
                 if handle is not None:
                     print('Killing..')
                     handle.kill()
-                handle = subprocess.Popen(['bash', appDir + '/run.sh'])
+                with directory(appDir):
+                    handle = subprocess.Popen(['bash', 'run.sh'])
                 app_sha = new_app_sha
             elif sha != new_sha:
                 print('Updating backbone')
