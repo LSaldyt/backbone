@@ -5,31 +5,62 @@ updateInterval = 5
 waitInterval   = 1
 appDir         = 'app'
 
+def get_sha():
+    output = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
+    return output.decode('utf-8').strip()
+
+def get_app_sha():
+    if not os.path.isdir(appDir):
+        return None
+    os.chdir(appDir)
+    try:
+        return get_sha()
+    finally:
+        os.chdir('..')
+
 def update(url):
     if not os.path.isdir(appDir):
         subprocess.call(['git', 'clone', url, appDir])
     os.chdir(appDir)
     try:
-        subprocess.call(['git', 'pull'])
-        subprocess.call(['bash', 'install.sh'])
-        return subprocess.Popen(['bash', 'run.sh'])
+        subprocess.call(['git', 'pull'])        # pull app's code
+        subprocess.call(['bash', 'install.sh']) # run app
+        return get_sha()
     finally:
         os.chdir('..')
+        subprocess.call(['git', 'pull']) # pull backbone's code
 
 def main(args):
+    url    = args[0]
     handle = None
-    last = time.time()
+    app_sha = get_app_sha()
+    sha     = get_sha()
+    last    = time.time()
+
     while True:
         current = time.time()
         if current - last > updateInterval:
             last = current
-            if handle is not None:
-                print('Killing..')
-                handle.kill()
-            print('Updating..')
-            handle = update(args[0])
+            print('Checking for updates..')
+            new_app_sha = update(url)
+            new_sha = get_sha()
+            if app_sha != new_app_sha:
+                print('Updating app')
+                # If our app has updated, restart it
+                print('Re-running..')
+                if handle is not None:
+                    print('Killing..')
+                    handle.kill()
+                handle = subprocess.Popen(['bash', 'run.sh'])
+                app_sha = new_app_sha
+            elif sha != new_sha:
+                print('Updating backbone')
+                # If backbone has updated, restart
+                subprocess.call(['./backbone'] + args)
+                return 0
+            print('Waiting.')
         else:
-            print('Waiting..')
+            print('.', end='')
             time.sleep(waitInterval)
     return 0
 
