@@ -64,7 +64,7 @@ def main(args):
                 # If backbone has updated, restart
                 subprocess.call(['./backbone'] + args)
                 return 0
-            if handle is none:
+            if handle is None:
                 with directory(appDir):
                     handle = subprocess.Popen(['bash', 'run.sh'])
             print('Waiting.', end='')
