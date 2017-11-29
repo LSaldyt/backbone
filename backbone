@@ -23,11 +23,13 @@ def update(url):
         subprocess.call(['git', 'clone', url, appDir])
     os.chdir(appDir)
     try:
+        print('Pulling app')
         subprocess.call(['git', 'pull'])        # pull app's code
         subprocess.call(['bash', 'install.sh']) # run app
         return get_sha()
     finally:
         os.chdir('..')
+        print('Pulling backbone')
         subprocess.call(['git', 'pull']) # pull backbone's code
 
 def main(args):
@@ -37,6 +39,7 @@ def main(args):
     sha     = get_sha()
     last    = time.time()
 
+    print('Waiting.', end='')
     while True:
         current = time.time()
         if current - last > updateInterval:
@@ -58,9 +61,9 @@ def main(args):
                 # If backbone has updated, restart
                 subprocess.call(['./backbone'] + args)
                 return 0
-            print('Waiting.')
+            print('Waiting.', end='')
         else:
-            print('.', end='')
+            print('.', end='', flush=True)
             time.sleep(waitInterval)
     return 0
 
