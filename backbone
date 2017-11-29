@@ -54,7 +54,7 @@ def main(args):
                 if handle is not None:
                     print('Killing..')
                     handle.kill()
-                handle = subprocess.Popen(['bash', 'run.sh'])
+                handle = subprocess.Popen(['bash', appDir + '/run.sh'])
                 app_sha = new_app_sha
             elif sha != new_sha:
                 print('Updating backbone')
