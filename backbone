@@ -63,6 +63,9 @@ def main(args):
                 print('Updating backbone')
                 # If backbone has updated, restart
                 subprocess.call(['./backbone'] + args)
+                if handle is not None:
+                    print('Killing..')
+                    handle.kill()
                 return 0
             if handle is None:
                 with directory(appDir):
