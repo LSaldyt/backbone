@@ -7,5 +7,3 @@ The only requirement is that the repository have a `install.sh` and `run.sh` for
 Backbone will take it from there.
 
 As of current writing, neither the app nor its supporting scripts should require superuser priveleges (And, generally, you shouldn't need superuser priveleges to install apps anyway..).
-
-*remote change*
