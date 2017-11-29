@@ -6,6 +6,7 @@ updateInterval = 5
 waitInterval   = 1
 appDir         = 'app'
 
+@contextmanager
 def directory(name):
     os.chdir(name)
     try:
