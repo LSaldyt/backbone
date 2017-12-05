@@ -2,7 +2,7 @@
 import subprocess, time, sys, os
 from contextlib import contextmanager
 
-updateInterval = 60
+updateInterval = 20
 waitInterval   = 1
 appDir         = 'app'
 
