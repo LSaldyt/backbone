@@ -33,7 +33,7 @@ def update(url):
         subprocess.call(['bash', 'install.sh']) # run app
         return get_sha()
 
-def main(args):
+def launch(args):
     url    = args[0]
     handle = None
     app_sha = get_app_sha()
@@ -83,4 +83,4 @@ def main(args):
             handle.kill()
 
 if __name__ == '__main__':
-    sys.exit(main(sys.argv[1:]))
+    sys.exit(launch(sys.argv[1:]))
