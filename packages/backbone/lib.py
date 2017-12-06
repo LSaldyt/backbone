@@ -4,7 +4,6 @@ from contextlib import contextmanager
 
 updateInterval = 20
 waitInterval   = 1
-appDir         = 'app'
 
 @contextmanager
 def directory(name):
@@ -18,13 +17,13 @@ def get_sha():
     output = subprocess.check_output(['git', 'rev-parse', 'HEAD'])
     return output.decode('utf-8').strip()
 
-def get_app_sha():
+def get_app_sha(appDir):
     if not os.path.isdir(appDir):
         return None
     with directory(appDir):
         return get_sha()
 
-def update(url):
+def update(url, appDir):
     if not os.path.isdir(appDir):
         subprocess.call(['git', 'clone', url, appDir])
     with directory(appDir):
@@ -33,10 +32,12 @@ def update(url):
         subprocess.call(['bash', 'install.sh']) # run app
         return get_sha()
 
-def launch(args):
+def launch(*args):
+    print('Launching {}'.format(args))
     url    = args[0]
+    appDir = args[1]
     handle = None
-    app_sha = get_app_sha()
+    app_sha = get_app_sha(appDir)
     sha     = get_sha()
     last    = time.time()
 
@@ -47,7 +48,7 @@ def launch(args):
             if current - last > updateInterval:
                 last = current
                 print('Checking for updates..')
-                new_app_sha = update(url)
+                new_app_sha = update(url, appDir)
                 print('Pulling backbone')
                 subprocess.call(['git', 'pull']) # pull backbone's code
                 new_sha = get_sha()
