@@ -2,8 +2,8 @@
 import subprocess, time, sys, os
 from contextlib import contextmanager
 
-updateInterval = 20
-waitInterval   = 1
+updateInterval = .1
+waitInterval   = .1
 
 @contextmanager
 def directory(name):
