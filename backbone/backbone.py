@@ -29,7 +29,7 @@ def update(url, appDir):
     with directory(appDir):
         print('Pulling app')
         subprocess.call(['git', 'pull'])        # pull app's code
-        subprocess.call(['bash', 'install.sh']) # run app
+        subprocess.call(['bash', 'install.sh']) # install app
         return get_sha()
 
 def launch(*args):
@@ -37,8 +37,7 @@ def launch(*args):
     url    = args[0]
     appDir = args[1]
     handle = None
-    app_sha = get_app_sha(appDir)
-    sha     = get_sha()
+    app_sha = None
     last    = time.time()
 
     try:
@@ -49,40 +48,23 @@ def launch(*args):
                 last = current
                 print('Checking for updates..')
                 new_app_sha = update(url, appDir)
-                print('Pulling backbone')
-                subprocess.call(['git', 'pull']) # pull backbone's code
-                new_sha = get_sha()
-                if app_sha != new_app_sha:
-                    print('Updating app')
-                    # If our app has updated, restart it
-                    print('Re-running..')
-                    if handle is not None:
-                        print('Killing..')
-                        handle.kill()
-                        with directory(appDir):
-                            handle = subprocess.Popen(['bash', 'run.sh'])
-                    app_sha = new_app_sha
-                elif sha != new_sha:
-                    print('Backbone updated...')
-                    #if handle is not None:
-                    #    print('Killing..')
-                    #    handle.kill()
-                    #print('Updating backbone')
-                    ## If backbone has updated, restart
-                    #subprocess.call(['./backbone'] + args)
-                    #return 0
                 if handle is None:
                     with directory(appDir):
                         handle = subprocess.Popen(['bash', 'run.sh'])
-                print('Waiting.', end='')
+                if app_sha != new_app_sha:
+                    print('Updating app')
+                    # If our app has updated, restart it
+                    handle.kill()
+                    with directory(appDir):
+                        handle = subprocess.Popen(['bash', 'run.sh'])
+                    app_sha = new_app_sha
             else:
                 print('.', end='', flush=True)
                 time.sleep(waitInterval)
         return 0
     finally:
-        if handle is not None:
-            print('Killing..')
-            handle.kill()
+        print('Killing..')
+        handle.kill()
 
 if __name__ == '__main__':
     sys.exit(launch(sys.argv[1:]))
