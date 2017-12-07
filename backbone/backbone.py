@@ -63,13 +63,14 @@ def launch(*args):
                             handle = subprocess.Popen(['bash', 'run.sh'])
                     app_sha = new_app_sha
                 elif sha != new_sha:
-                    if handle is not None:
-                        print('Killing..')
-                        handle.kill()
-                    print('Updating backbone')
-                    # If backbone has updated, restart
-                    subprocess.call(['./backbone'] + args)
-                    return 0
+                    print('Backbone updated...')
+                    #if handle is not None:
+                    #    print('Killing..')
+                    #    handle.kill()
+                    #print('Updating backbone')
+                    ## If backbone has updated, restart
+                    #subprocess.call(['./backbone'] + args)
+                    #return 0
                 if handle is None:
                     with directory(appDir):
                         handle = subprocess.Popen(['bash', 'run.sh'])
